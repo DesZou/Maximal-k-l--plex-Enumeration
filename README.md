@@ -1,6 +1,6 @@
 An algorithm for enumerating maximal directed (k,l)-plexes.
 
-compilation
+Compilation:
 ```
 cd build
 cmake ..
