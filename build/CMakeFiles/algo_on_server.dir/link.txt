@@ -1,1 +1,0 @@
-/usr/bin/c++   -std=c++11    CMakeFiles/algo_on_server.dir/src/algo_on_server.cc.o CMakeFiles/algo_on_server.dir/src/base_on_server.cc.o  -o bin/algo_on_server -rdynamic 
