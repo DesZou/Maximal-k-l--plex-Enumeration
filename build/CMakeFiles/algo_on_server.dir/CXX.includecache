@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+.././include/base_on_server.h
+algorithm
+-
+set
+-
+map
+-
+vector
+-
+string
+-
+tuple
+-
+iostream
+-
+fstream
+-
+cassert
+-
+cstdio
+-
+ctime
+-
+cstdint
+-
+bitset
+-
+chrono
+-
+
+/home/u190110310/mkle/src/algo_on_server.cc
+base_on_server.h
+/home/u190110310/mkle/src/base_on_server.h
+
+/home/u190110310/mkle/src/base_on_server.cc
+base_on_server.h
+/home/u190110310/mkle/src/base_on_server.h
+
