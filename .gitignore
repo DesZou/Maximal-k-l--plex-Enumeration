@@ -1,3 +1,5 @@
 # ignore
-data/*.*
-build/*.*
+data/SNAP
+data/SNAP_modified
+build/*
+!build/bin
