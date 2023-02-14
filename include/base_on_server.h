@@ -22,9 +22,12 @@ namespace BaseOnServer {
     using i64 = std::int64_t;
     using u64 = std::uint64_t;
 
+    u32 const BIT_LEN = 1 << 13;
+
     template<class T> using Vec = std::vector<T>;
     template<class... T> using Tup = std::tuple<T...>;
     using Str = std::string;
+    // using Bset = std::bitset<BIT_LEN>;
 
     struct Graph {
         Vec<Vec<u32>> edges;

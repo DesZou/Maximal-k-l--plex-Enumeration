@@ -15,7 +15,7 @@ if __name__ == '__main__':
     g = nx.DiGraph()
 
     with open('./data/small_graph.txt', 'w') as f:
-        f.write('# total vertexes: {}\n'.format(vet_num))
+        f.write('# total vertices: {}\n'.format(vet_num))
 
         for r in range(len(mat)):
             for c in range(len(mat[0])):

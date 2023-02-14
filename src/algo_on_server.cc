@@ -102,7 +102,7 @@ void print_and_check(Set const& c) {
         tok = T;
 
         std::cout << "---------------------\n"
-            << "Total found (" << K << ", " << L << ") - plex(es): " << sol_cnt << "\n"
+            << "Total found (" << K << ", " << L << ")-plex(es): " << sol_cnt << "\n"
             << "Total runtime: " << sec(tok - tik).count() << "s\n"
             << "---------------------\n";
 
@@ -133,16 +133,16 @@ void enumAll(Graph& g, Set const& s, std::set<Set>& sol, bool output_flag = true
 i32 main(i32 argc, char* argv[]) {
     Str input_path = "../data/small_graph.txt";
 
-    if (argc >= 1) input_path = Str(argv[0]);
+    if (argc >= 1) input_path = Str(argv[1]);
     if (argc >= 2) {
-        i32 tmp = sscanf(argv[1], "%llu", &sol_bnd);
+        i32 tmp = sscanf(argv[2], "%llu", &sol_bnd);
         if (tmp != 1) {
             return -1;
         }
     }
     if (argc >= 4) {
-        i32 tmp1 = sscanf(argv[2], "%u", &K);
-        i32 tmp2 = sscanf(argv[3], "%u", &L);
+        i32 tmp1 = sscanf(argv[3], "%u", &K);
+        i32 tmp2 = sscanf(argv[4], "%u", &L);
         if (tmp1 != 1 || tmp2 != 1) {
             return -1;
         }
