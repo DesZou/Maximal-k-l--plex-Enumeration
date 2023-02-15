@@ -28,19 +28,18 @@ bool sat(Graph const& g, Set const& s) {
     return true;
 }
 
-Set extend(Graph const& g, Set const& s) {
-    Set ret = s;
+Set& extend(Graph const& g, Set& s) {
     u32 n = g.vrt_num;
 
     for (u32 i = 0; i < n; ++i) {
-        if (!ret.exist(i)) {
-            ret.add(i);
-            if (sat(g, ret)) continue;
-            ret.del(i);
+        if (!s.exist(i)) {
+            s.add(i);
+            if (sat(g, s)) continue;
+            s.del(i);
         }
     }
     
-    return ret;
+    return s;
 }
 
 struct EnumAlmostCoro {
@@ -52,42 +51,42 @@ struct EnumAlmostCoro {
     Set const& s;
     u32 v;
 
-    std::set<Set> save;
     Set value;
-    Set e1, e2, e;
-    u32 n1, n2, n, m;
-    Set p1, q1, p2, q2;
+    Set e;
+    u32 n, m;
+    Set p, q;
 
     EnumAlmostCoro(Graph const& g_, Set const& s_, u32 v_):
-        cur(Start), g(g_), s(s_), v(v_), m(0), n1(0), n2(0), n(0) {
-        e1 = s - Set(g.edges[v]);
-        e2 = s - Set(g.edges_r[v]);
-        n1 = std::min(K - 1, u32(e1.data.size()));
-        n2 = std::min(L - 1, u32(e2.data.size()));
+        cur(Start), g(g_), s(s_), v(v_), m(0), n(0) {
+        auto e1 = s - Set(g.edges[v]);
+        auto e2 = s - Set(g.edges_r[v]);
+        auto n1 = std::min(K - 1, u32(e1.data.size()));
+        auto n2 = std::min(L - 1, u32(e2.data.size()));
         n = n1 + n2;
         e = e1 + e2;
         n = std::min(n, u32(e.data.size()));
+        m = n + 1;
+        value = s - e;
+        value.add(v);
     }
-    
+
     bool operator()() {
         if (cur == Finish) return false;
         if (cur == Resume) goto CoroResume;
         cur = Resume;
-         
-        while (e.next_pick(n, p1.data, q1.data)) {
-            m = -1;
-            while (++m <= n) {
-                p2.data.clear();
-                while (q1.next_pick(m, p2.data, q2.data)) {
-                    value = s - (e - (q1 - q2)) + v;
-                    if (sat(g, value) && save.find(value) == save.end()) {
-                        save.insert(value);
-                        return true;
-                    CoroResume:;
-                    }
+
+        while (m --> 0) {
+            p.data.clear();
+            while (e.next_pick(m, p.data, q.data)) {
+                value = value + q;
+                if (sat(g, value)) {
+                    return true;
+                CoroResume:;
                 }
+                value = value - q;
             }
         }
+ 
         cur = Finish;
         return false;
     }
@@ -118,7 +117,7 @@ void enumAll(Graph& g, Set const& s, std::set<Set>& sol, bool output_flag = true
         Set& t = enumAlmost.value;
 
         while (enumAlmost()) {
-            Set c = extend(g, t);
+            Set& c = extend(g, t);
 
             if (sol.find(c) == sol.end()) {
                 sol.insert(c);

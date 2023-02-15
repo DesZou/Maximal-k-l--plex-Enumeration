@@ -23,11 +23,14 @@ namespace BaseOnServer {
         g.edges.resize(g.vrt_num);
         g.edges_r.resize(g.vrt_num);
 
-        for (auto& t: e) {
+        for (auto& t : e) {
             std::tie(u, v) = t;
             g.edges[u].push_back(v);
             g.edges_r[v].push_back(u);
         }
+
+        for (auto& e : g.edges) e.shrink_to_fit();
+        for (auto& e : g.edges_r) e.shrink_to_fit();
 
         return in;
     }
@@ -51,6 +54,7 @@ namespace BaseOnServer {
 
     Set Set::operator-(Set const& rhs) const {
         Set ret;
+        ret.data.reserve(data.size());
 
         std::set_difference(data.begin(), data.end(),
                             rhs.data.begin(), rhs.data.end(),
@@ -61,6 +65,7 @@ namespace BaseOnServer {
 
     Set Set::operator+(Set const& rhs) const {
         Set ret;
+        ret.data.reserve(data.size() + rhs.data.size());
 
         std::set_union(data.begin(), data.end(),
                         rhs.data.begin(), rhs.data.end(),
