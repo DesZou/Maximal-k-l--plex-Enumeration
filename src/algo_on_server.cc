@@ -109,9 +109,11 @@ void print_and_check(Set const& c) {
     }
 }
 
-void enumAll(Graph& g, Set const& s, std::set<Set>& sol, bool output_flag = true) {
+void enumAll(Graph& g, Set const& s, Set const& used, std::set<Set>& sol, bool output_flag = true) {
+    Set new_used(used);
     for (u32 i = 0; i < g.vrt_num; ++i) {
         if (s.exist(i)) continue;
+        if (used.exist(i)) continue;
 
         auto enumAlmost = EnumAlmostCoro(g, s, i);
         Set& t = enumAlmost.value;
@@ -122,9 +124,12 @@ void enumAll(Graph& g, Set const& s, std::set<Set>& sol, bool output_flag = true
             if (sol.find(c) == sol.end()) {
                 sol.insert(c);
                 if (output_flag) print_and_check(c);
-                enumAll(g, c, sol, !output_flag);
+                // std::cout << "{" << used;
+                enumAll(g, c, used, sol, !output_flag);
+                // std::cout << "}" << used;
                 if (!output_flag) print_and_check(c);
             }
+            new_used.add(i);
         }
     }
 }
@@ -132,14 +137,14 @@ void enumAll(Graph& g, Set const& s, std::set<Set>& sol, bool output_flag = true
 i32 main(i32 argc, char* argv[]) {
     Str input_path = "../data/small_graph.txt";
 
-    if (argc >= 1) input_path = Str(argv[1]);
-    if (argc >= 2) {
+    if (argc >= 2) input_path = Str(argv[1]);
+    if (argc >= 3) {
         i32 tmp = sscanf(argv[2], "%llu", &sol_bnd);
         if (tmp != 1) {
             return -1;
         }
     }
-    if (argc >= 4) {
+    if (argc >= 5) {
         i32 tmp1 = sscanf(argv[3], "%u", &K);
         i32 tmp2 = sscanf(argv[4], "%u", &L);
         if (tmp1 != 1 || tmp2 != 1) {
@@ -156,7 +161,7 @@ i32 main(i32 argc, char* argv[]) {
 
     tik = T = clk::now();
 
-    enumAll(g, Vec<u32>{}, sol);
+    enumAll(g, Set{}, Set{}, sol);
 
     tok = clk::now();
 

@@ -75,7 +75,8 @@ namespace BaseOnServer {
     }
 
     Set Set::operator+(u32 val) const {
-        Set ret(*this);
+        Set ret;
+        ret.data = data;
 
         auto pos = std::lower_bound(ret.data.begin(), ret.data.end(), val);
         ret.data.insert(pos, val);
