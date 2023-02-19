@@ -66,6 +66,7 @@ namespace BaseOnServer {
         std::chrono::time_point<clk> beg, cur;
         double max_delay_, min_delay_;
 
+        Timer();
         void start();
         double get_delay();
         double get_total();
