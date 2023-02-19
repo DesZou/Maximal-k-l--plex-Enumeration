@@ -45,9 +45,7 @@ namespace BaseOnServer {
         bool operator==(Set const&) const;
         Set operator-(Set const&) const;
         Set operator+(Set const&) const;
-        Set operator+(u32) const;
         bool operator<(Set const&) const;
-        bool operator>(Set const&) const;
 
         bool contain(Set const&) const;
         bool exist(u32) const;
@@ -60,6 +58,20 @@ namespace BaseOnServer {
     };
 
     std::ostream& operator<<(std::ostream&, Set const&);
+
+    struct Timer {
+        using clk = std::chrono::steady_clock;
+        using sec = std::chrono::duration<double>;
+
+        std::chrono::time_point<clk> beg, cur;
+        double max_delay_, min_delay_;
+
+        void start();
+        double get_delay();
+        double get_total();
+        double max_delay();
+        double min_delay();
+    };
 } // BaseOnServer
 
 #endif // _ZZC_BASE_ON_SERVER_

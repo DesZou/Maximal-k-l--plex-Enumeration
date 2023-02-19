@@ -1,8 +1,4 @@
 # ignore
-data/SNAP
-data/SNAP_modified
-build/*
-!build/bin
 outputs
 .vscode
 core.*

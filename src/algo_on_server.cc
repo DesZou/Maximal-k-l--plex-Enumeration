@@ -52,9 +52,9 @@ struct EnumAlmostCoro {
     u32 v;
 
     Set value;
-    Set e;
+    Set e, q;
     u32 n, m;
-    Set p, q;
+    Vec<u32> p;
 
     EnumAlmostCoro(Graph const& g_, Set const& s_, u32 v_):
         cur(Start), g(g_), s(s_), v(v_), m(0), n(0) {
@@ -76,8 +76,8 @@ struct EnumAlmostCoro {
         cur = Resume;
 
         while (m --> 0) {
-            p.data.clear();
-            while (e.next_pick(m, p.data, q.data)) {
+            p.clear();
+            while (e.next_pick(m, p, q.data)) {
                 value = value + q;
                 if (sat(g, value)) {
                     return true;

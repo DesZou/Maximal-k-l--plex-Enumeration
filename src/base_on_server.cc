@@ -74,16 +74,6 @@ namespace BaseOnServer {
         return ret;
     }
 
-    Set Set::operator+(u32 val) const {
-        Set ret;
-        ret.data = data;
-
-        auto pos = std::lower_bound(ret.data.begin(), ret.data.end(), val);
-        ret.data.insert(pos, val);
-
-        return ret;
-    }
-
     bool Set::operator<(Set const& rhs) const {
         if (data.size() != rhs.data.size()) {
             return (data.size() < rhs.data.size());
@@ -100,10 +90,6 @@ namespace BaseOnServer {
         }
 
         return false;
-    }
-
-    bool Set::operator>(Set const& rhs) const {
-        return (rhs < *this);
     }
 
     bool Set::contain(Set const& rhs) const {
@@ -187,5 +173,35 @@ namespace BaseOnServer {
         }
         out << "\n";
         return out;
+    }
+
+    Timer::Timer() {
+        max_delay_ = 1e9;
+        min_delay_ = 0;
+    }
+
+    void Timer::start() {
+        beg = cur = clk::now();
+    }
+
+    double Timer::get_delay() {
+        auto r = sec(clk::now() - cur).count();
+        cur = clk::now();
+        if (r > max_delay_) max_delay_ = r;
+        if (r < min_delay_) min_delay_ = r;
+        return r;
+    }
+
+    double Timer::get_total() {
+        cur = clk::now();
+        return sec(cur - beg).count();
+    }
+
+    double Timer::max_delay() {
+        return max_delay_;
+    }
+
+    double Timer::min_delay() {
+        return min_delay_;
     }
 }
