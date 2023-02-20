@@ -9,6 +9,7 @@ u32 L = 2;
 
 u64 sol_cnt = 0;
 u64 sol_bnd = 1000;
+double time_bnd = 1000;
 
 std::chrono::time_point<clk> T, tik, tok;
 
@@ -97,7 +98,7 @@ void print_and_check(Set const& c) {
     std::cout << "[" << sec(clk::now() - T).count() << "s] No." << sol_cnt << " solution: " << c;
     T = clk::now();
 
-    if (sol_cnt >= sol_bnd) {
+    if (sol_cnt >= sol_bnd || sec(T - tik).count() >= time_bnd) {
         tok = T;
 
         std::cout << "---------------------\n"
@@ -113,7 +114,9 @@ void enumAll(Graph& g, Set const& s, Set const& used, std::set<Set>& sol, bool o
     Set new_used(used);
     for (u32 i = 0; i < g.vrt_num; ++i) {
         if (s.exist(i)) continue;
+#ifdef OPT_USED
         if (used.exist(i)) continue;
+#endif
 
         auto enumAlmost = EnumAlmostCoro(g, s, i);
         Set& t = enumAlmost.value;
@@ -129,7 +132,9 @@ void enumAll(Graph& g, Set const& s, Set const& used, std::set<Set>& sol, bool o
                 // std::cout << "}" << used;
                 if (!output_flag) print_and_check(c);
             }
+#ifdef OPT_USED
             new_used.add(i);
+#endif
         }
     }
 }
@@ -144,9 +149,15 @@ i32 main(i32 argc, char* argv[]) {
             return -1;
         }
     }
-    if (argc >= 5) {
-        i32 tmp1 = sscanf(argv[3], "%u", &K);
-        i32 tmp2 = sscanf(argv[4], "%u", &L);
+    if (argc >= 4) {
+        i32 tmp = sscanf(argv[3], "%lf", &time_bnd);
+        if (tmp != 1) {
+            return -1;
+        }
+    }
+    if (argc >= 6) {
+        i32 tmp1 = sscanf(argv[4], "%u", &K);
+        i32 tmp2 = sscanf(argv[5], "%u", &L);
         if (tmp1 != 1 || tmp2 != 1) {
             return -1;
         }

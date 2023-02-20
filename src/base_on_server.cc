@@ -74,6 +74,12 @@ namespace BaseOnServer {
         return ret;
     }
 
+    Set Set::operator+(u32 v) const {
+        Set ret(*this);
+        ret.add(v);
+        return ret;
+    }
+
     bool Set::operator<(Set const& rhs) const {
         if (data.size() != rhs.data.size()) {
             return (data.size() < rhs.data.size());

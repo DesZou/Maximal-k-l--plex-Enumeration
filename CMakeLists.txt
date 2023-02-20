@@ -10,7 +10,15 @@ ADD_EXECUTABLE(algo_on_server
     src/algo_on_server.cc
     src/base_on_server.cc)
 
+ADD_EXECUTABLE(algo2_on_server
+    src/algo2_on_server.cc
+    src/base_on_server.cc)
+
 ADD_EXECUTABLE(bf_on_server
     src/bf_on_server.cc
+    src/base_on_server.cc)
+
+ADD_EXECUTABLE(bf2_on_server
+    src/bf2_on_server.cc
     src/base_on_server.cc)
     

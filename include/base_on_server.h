@@ -45,6 +45,7 @@ namespace BaseOnServer {
         bool operator==(Set const&) const;
         Set operator-(Set const&) const;
         Set operator+(Set const&) const;
+        Set operator+(u32) const;
         bool operator<(Set const&) const;
 
         bool contain(Set const&) const;

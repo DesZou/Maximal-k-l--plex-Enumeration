@@ -10,6 +10,7 @@ u32 L = 2;
 
 u64 bcnt = 0;
 u64 bbnd = 1000;
+double time_bnd = 1000;
 
 std::chrono::time_point<clk> T, tik, tok;
 
@@ -84,7 +85,7 @@ void benum() {
 			++bcnt;
 			std::cout << "[" << sec(clk::now() - T).count() << "s] " << "No." << bcnt << " solution: " << cur;
 			T = clk::now();
-			if (bcnt >= bbnd) {
+			if (bcnt >= bbnd || sec(T - tik).count() >= time_bnd) {
 				return;
 			}
 		}
@@ -117,9 +118,15 @@ int main(i32 argc, char* argv[]) {
 			return -1;
 		}
 	}
-	if (argc >= 5) {
-		i32 tmp1 = sscanf(argv[3], "%u", &K);
-		i32 tmp2 = sscanf(argv[4], "%u", &L);
+	if (argc >= 4) {
+		i32 tmp = sscanf(argv[3], "%lf", &time_bnd);
+		if (tmp != 1) {
+			return -1;
+		}
+	}
+	if (argc >= 6) {
+		i32 tmp1 = sscanf(argv[4], "%u", &K);
+		i32 tmp2 = sscanf(argv[5], "%u", &L);
 		if (tmp1 != 1 || tmp2 != 1) {
 			return -1;
 		}
