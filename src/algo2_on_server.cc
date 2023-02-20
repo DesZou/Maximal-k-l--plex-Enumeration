@@ -1,7 +1,5 @@
 #include "base_on_server.h"
 
-#define OPT_USED
-
 using namespace BaseOnServer;
 using sec = std::chrono::duration<double>;
 using clk = std::chrono::steady_clock;
@@ -31,18 +29,19 @@ bool sat(Graph const& g, Set const& s) {
     return true;
 }
 
-Set& extend(Graph const& g, Set& s) {
+Set extend(Graph const& g, Set const& s) {
+    Set ret(s);
     u32 n = g.vrt_num;
 
     for (u32 i = 0; i < n; ++i) {
-        if (!s.exist(i)) {
-            s.add(i);
-            if (sat(g, s)) continue;
-            s.del(i);
+        if (!ret.exist(i)) {
+            ret.add(i);
+            if (sat(g, ret)) continue;
+            ret.del(i);
         }
     }
     
-    return s;
+    return ret;
 }
 
 struct EnumAlmostCoro {
@@ -113,31 +112,27 @@ void print_and_check(Set const& c) {
 }
 
 void enumAll(Graph& g, Set const& s, Set const& used, std::set<Set>& sol, bool output_flag = true) {
-    Set new_used(used);
+    Set used_cp(used);
     for (u32 i = 0; i < g.vrt_num; ++i) {
         if (s.exist(i)) continue;
-#ifdef OPT_USED
-        if (used.exist(i)) continue;
-#endif
+        if (used_cp.exist(i)) continue;
 
         auto enumAlmost = EnumAlmostCoro(g, s, i);
         Set& t = enumAlmost.value;
 
         while (enumAlmost()) {
-            Set& c = extend(g, t);
+            Set c = extend(g, t);
 
             if (sol.find(c) == sol.end()) {
                 sol.insert(c);
                 if (output_flag) print_and_check(c);
                 // std::cout << "{" << used;
-                enumAll(g, c, used, sol, !output_flag);
+                enumAll(g, c, Set(used_cp), sol, !output_flag);
                 // std::cout << "}" << used;
                 if (!output_flag) print_and_check(c);
             }
-#ifdef OPT_USED
-            new_used.add(i);
-#endif
         }
+        used_cp.add(i);
     }
 }
 

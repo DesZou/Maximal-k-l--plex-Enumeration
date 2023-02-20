@@ -29,18 +29,19 @@ bool sat(Graph const& g, Set const& s) {
     return true;
 }
 
-Set& extend(Graph const& g, Set& s) {
+Set extend(Graph const& g, Set const& s) {
+    Set ret(s);
     u32 n = g.vrt_num;
 
     for (u32 i = 0; i < n; ++i) {
-        if (!s.exist(i)) {
-            s.add(i);
-            if (sat(g, s)) continue;
-            s.del(i);
+        if (!ret.exist(i)) {
+            ret.add(i);
+            if (sat(g, ret)) continue;
+            ret.del(i);
         }
     }
     
-    return s;
+    return ret;
 }
 
 struct EnumAlmostCoro {
@@ -122,7 +123,7 @@ void enumAll(Graph& g, Set const& s, Set const& used, std::set<Set>& sol, bool o
         Set& t = enumAlmost.value;
 
         while (enumAlmost()) {
-            Set& c = extend(g, t);
+            Set c = extend(g, t);
 
             if (sol.find(c) == sol.end()) {
                 sol.insert(c);
