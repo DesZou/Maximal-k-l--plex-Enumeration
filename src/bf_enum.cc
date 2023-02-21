@@ -1,9 +1,7 @@
 #include "utils.h"
 
 using namespace Utils;
-using sec = std::chrono::duration<double>;
-using clk = std::chrono::steady_clock;
-using Bset = std::vector<u32>;
+using Bset = std::vector<u8>;
 
 u32 K = 2;
 u32 L = 2;
@@ -12,9 +10,8 @@ u64 bcnt = 0;
 u64 bbnd = 1000;
 double time_bnd = 1000;
 
-std::chrono::time_point<clk> T, tik, tok;
-
 Graph g;
+Logger T;
 Vec<Bset> b_edges, b_edges_r;
 
 std::ostream& operator<<(std::ostream& out, Bset& b) {
@@ -76,24 +73,26 @@ bool bmaximal(Bset& b) {
 	return true;
 }
 
+Vec<u32> b2vec(Bset const& b) {
+	Vec<u32> r;
+	for (u32 i = 0; i < g.vrt_size; ++i) if (b[i]) {
+		r.push_back(i);
+	}
+	return r;
+}
+
 void benum() {
 	Bset cur;
 	cur.resize(g.vrt_size);
 
 	while (bnext(cur)) {
 		if (bsat(cur) && bmaximal(cur)) {
-			++bcnt;
-			std::cout << "[" << sec(clk::now() - T).count() << "s] " << "No." << bcnt << " solution: " << cur;
-			T = clk::now();
-			if (bcnt >= bbnd || sec(T - tik).count() >= time_bnd) {
+			T.record_and_print(b2vec(cur));
+			if (T.time_count() >= time_bnd || T.record_count() >= bbnd) {
 				return;
 			}
 		}
 	}
-}
-
-void senum() {
-
 }
 
 void init() {
@@ -139,17 +138,11 @@ int main(i32 argc, char* argv[]) {
 
 	init();
 
-	tik = T = clk::now();
+	T.start_timer();
 
 	benum();
 
-	tok = clk::now();
-
-	std::cout << "---------------------\n"
-		<< "Reading file: " << input_path << "\n"
-		<< "Total found (" << K << ", " << L << ")-plex(es): " << bcnt << "\n"
-		<< "Total runtime: " << sec(tok - tik).count() << "s\n"
-		<< "---------------------\n";
+	T.finish_and_print();
 
 	return 0;
 }

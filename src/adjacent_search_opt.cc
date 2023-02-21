@@ -1,32 +1,41 @@
 #include "utils.h"
 
 using namespace Utils;
-using sec = std::chrono::duration<double>;
-using clk = std::chrono::steady_clock;
 
 u32 K = 2;
 u32 L = 2;
 
 u64 sol_cnt = 0;
 u64 sol_bnd = 1000;
-double time_bnd = 1000;
+f64 time_bnd = 1000;
 
-std::chrono::time_point<clk> T, tik, tok;
+Logger T;
 
 bool sat(Graph const& g, Set const& s) {
+    auto k = new u32[g.vrt_size];
+    auto l = new u32[g.vrt_size];
+    std::fill(k, k + g.vrt_size, 0);
+    std::fill(l, l + g.vrt_size, 0);
     u32 n = s.data.size();
-    auto f = [&s](u32 x) { return s.exist(x); };
 
-    for (auto &v : s.data) {
-        auto &es = g.from[v];
-        auto &es_r = g.to[v];
-        u32 out = std::count_if(es.begin(), es.end(), f);
-        u32 in = std::count_if(es_r.begin(), es_r.end(), f);
-
-        if (((out + K) < n) || ((in + L) < n)) return false;
+    for (auto& x : s.data) {
+        for (auto& y : g.to[x]) k[y] += 1;
+        for (auto& y : g.from[x]) l[y] += 1;
     }
 
-    return true;
+    bool result = true;
+    
+    for (auto& x : s.data) {
+        if (k[x] + K < n || l[x] + L < n) {
+            result = false;
+            break;
+        }
+    }
+
+    delete[] k;
+    delete[] l;
+
+    return result;
 }
 
 Set extend(Graph const& g, Set const& s) {
@@ -80,7 +89,7 @@ struct EnumAlmostCoro {
         while (m --> 0) {
             p.clear();
             // while (e.next_pick(m, p, q.data)) {
-            while (pick_next(e, e.data.size(), m, p, q.data)) {
+            while (pick_next(e.data, e.data.size(), m, p, q.data)) {
                 value = value + q;
                 if (sat(g, value)) {
                     return true;
@@ -95,19 +104,10 @@ struct EnumAlmostCoro {
     }
 };
 
-void print_and_check(Set const& c) {
-    ++sol_cnt;
-    std::cout << "[" << sec(clk::now() - T).count() << "s] No." << sol_cnt << " solution: " << c;
-    T = clk::now();
-
-    if (sol_cnt >= sol_bnd || sec(T - tik).count() >= time_bnd) {
-        tok = T;
-
-        std::cout << "---------------------\n"
-            << "Total found (" << K << ", " << L << ")-plex(es): " << sol_cnt << "\n"
-            << "Total runtime: " << sec(tok - tik).count() << "s\n"
-            << "---------------------\n";
-
+void record_and_check(Set const& s) {
+    T.record_and_print(s);
+    if (T.time_count() >= time_bnd || T.record_count() >= sol_bnd) {
+        T.finish_and_print();
         std::exit(0);
     }
 }
@@ -116,7 +116,6 @@ void enumAll(Graph& g, Set const& s, Set const& used, std::set<Set>& sol, bool o
     Set used_cp(used);
     for (u32 i = 0; i < g.vrt_size; ++i) {
         if (s.exist(i)) continue;
-        if (used_cp.exist(i)) continue;
 
         auto enumAlmost = EnumAlmostCoro(g, s, i);
         Set& t = enumAlmost.value;
@@ -126,13 +125,12 @@ void enumAll(Graph& g, Set const& s, Set const& used, std::set<Set>& sol, bool o
 
             if (sol.find(c) == sol.end()) {
                 sol.insert(c);
-                if (output_flag) print_and_check(c);
-                // std::cout << "{" << used;
-                enumAll(g, c, Set(used_cp), sol, !output_flag);
-                // std::cout << "}" << used;
-                if (!output_flag) print_and_check(c);
+                if (output_flag) record_and_check(c);
+                enumAll(g, c, used_cp, sol, !output_flag);
+                if (!output_flag) record_and_check(c);
             }
         }
+
         used_cp.add(i);
     }
 }
@@ -168,19 +166,11 @@ i32 main(i32 argc, char* argv[]) {
     input_stream >> g;
     input_stream.close();
 
-    tik = T = clk::now();
+    T.start_timer();
 
-    enumAll(g, Set{}, Set{}, sol);
+    enumAll(g, {}, {}, sol);
 
-    tok = clk::now();
-
-    std::cout << "---------------------\n"
-        << "Reading file: " << input_path << "\n"
-        << "Total found (" << K << ", " << L << ")-plex(es): " << sol_cnt << "\n"
-        << "Total runtime: " << sec(tok - tik).count() << "s\n"
-        << "---------------------\n";
+    T.finish_and_print();
 
     return 0;
 }
-
-

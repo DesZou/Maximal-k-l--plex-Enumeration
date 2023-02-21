@@ -156,7 +156,7 @@ namespace Utils {
 
         std::cout << "(" << rec.size() << ")"
                 << "[" << delay << "s]"
-                << "{" << total << "s}"
+                << "{" << total << "s} "
                 << s;
     }
 
