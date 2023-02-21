@@ -12,6 +12,20 @@ f64 time_bnd = 1000;
 Logger T;
 
 bool sat(Graph const& g, Set const& s) {
+    u32 n = s.data.size();
+    auto f = [&s](u32 v) { return s.exist(v); };
+
+    for (auto& x : s.data) {
+        auto& fr = g.from[x];
+        auto& to = g.to[x];
+        u32 k = std::count_if(fr.begin(), fr.end(), f);
+        u32 l = std::count_if(to.begin(), to.end(), f);
+        if (k + K < n || l + L < n) return false;
+    }
+    return true;
+}
+/*
+bool sat(Graph const& g, Set const& s) {
     auto k = new u32[g.vrt_size];
     auto l = new u32[g.vrt_size];
     std::fill(k, k + g.vrt_size, 0);
@@ -37,7 +51,7 @@ bool sat(Graph const& g, Set const& s) {
 
     return result;
 }
-
+*/
 Set extend(Graph const& g, Set const& s) {
     Set ret(s);
     u32 n = g.vrt_size;
