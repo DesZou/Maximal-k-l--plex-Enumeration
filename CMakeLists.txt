@@ -6,19 +6,19 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)
 
 INCLUDE_DIRECTORIES(./include)
 
-ADD_EXECUTABLE(algo_on_server
-    src/algo_on_server.cc
-    src/base_on_server.cc)
+ADD_EXECUTABLE(bf_enum
+    src/bf_enum.cc
+    src/utils.cc)
 
-ADD_EXECUTABLE(algo2_on_server
-    src/algo2_on_server.cc
-    src/base_on_server.cc)
+ADD_EXECUTABLE(bf_search
+    src/bf_search.cc
+    src/utils.cc)
 
-ADD_EXECUTABLE(bf_on_server
-    src/bf_on_server.cc
-    src/base_on_server.cc)
+ADD_EXECUTABLE(adjacent_search
+    src/adjacent_search.cc
+    src/utils.cc)
 
-ADD_EXECUTABLE(bf2_on_server
-    src/bf2_on_server.cc
-    src/base_on_server.cc)
+ADD_EXECUTABLE(adjacent_search_opt
+    src/adjacent_search_opt.cc
+    src/utils.cc)
     
