@@ -6,8 +6,8 @@ if __name__ == '__main__':
     bin_dir = './build/bin'
     data_dir = './data/SNAP_modified'
     output_dir = './outputs'
-    output_bound = 300
-    runtime_bound = 300
+    output_bound = 1000000000 # unlimit
+    runtime_bound = 60
 
     for data_file in os.listdir(data_dir):
         if not data_file.endswith('.txt'):

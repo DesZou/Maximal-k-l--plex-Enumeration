@@ -47,7 +47,7 @@ namespace Utils {
 
         Set();
         Set(Vec<u32> const&);
-        Set(Vec<u32>&);
+        Set(Vec<u32>&&);
 
         operator Vec<u32> const&();
 
@@ -62,6 +62,8 @@ namespace Utils {
 
         void add(u32);
         void del(u32);
+        void push(u32);
+        void pop();
     };
 
     std::ostream& operator<<(std::ostream&, Set const&);

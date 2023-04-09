@@ -15,8 +15,8 @@ bool satisfy(Set const& s) {
     std::fill(deg_in , deg_in  + G.vrt_size, 0);
 
     for (auto& x : s.data) {
-        for (auto& y : G.to[x]) { deg_out[y] += 1; }
-        for (auto& y : G.from  [x]) { deg_in [y] += 1; }
+        for (auto& y : G.to  [x]) { deg_out[y] += 1; }
+        for (auto& y : G.from[x]) { deg_in [y] += 1; }
     }
 
     for (auto& x : s.data) {

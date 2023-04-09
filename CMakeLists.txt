@@ -6,9 +6,9 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)
 
 INCLUDE_DIRECTORIES(./include)
 
-ADD_EXECUTABLE(bf_enum
-    src/bf_enum.cc
-    src/utils.cc)
+# ADD_EXECUTABLE(bf_enum
+#     src/bf_enum.cc
+#     src/utils.cc)
 
 ADD_EXECUTABLE(bf_search
     src/bf_search.cc

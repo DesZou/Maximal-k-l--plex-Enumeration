@@ -24,34 +24,7 @@ bool sat(Graph const& g, Set const& s) {
     }
     return true;
 }
-/*
-bool sat(Graph const& g, Set const& s) {
-    auto k = new u32[g.vrt_size];
-    auto l = new u32[g.vrt_size];
-    std::fill(k, k + g.vrt_size, 0);
-    std::fill(l, l + g.vrt_size, 0);
-    u32 n = s.data.size();
 
-    for (auto& x : s.data) {
-        for (auto& y : g.to[x]) k[y] += 1;
-        for (auto& y : g.from[x]) l[y] += 1;
-    }
-
-    bool result = true;
-    
-    for (auto& x : s.data) {
-        if (k[x] + K < n || l[x] + L < n) {
-            result = false;
-            break;
-        }
-    }
-
-    delete[] k;
-    delete[] l;
-
-    return result;
-}
-*/
 Set extend(Graph const& g, Set const& s) {
     Set ret(s);
     u32 n = g.vrt_size;

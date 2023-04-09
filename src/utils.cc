@@ -52,7 +52,7 @@ namespace Utils {
         std::sort(data.begin(), data.end());
     }
 
-    Set::Set(Vec<u32>& vrt) {
+    Set::Set(Vec<u32>&& vrt) {
         data = std::move(vrt);
         std::sort(data.begin(), data.end());
     }
@@ -128,6 +128,14 @@ namespace Utils {
         }
     }
 
+    void Set::push(u32 val) {
+        data.push_back(val);
+    }
+
+    void Set::pop() {
+        data.pop_back();
+    }
+
     std::ostream& operator<<(std::ostream& out, Set const& s) {
         for (auto& v : s.data) {
             out << v << " ";
@@ -154,9 +162,9 @@ namespace Utils {
         total += delay;
         rec.push_back(delay);
 
-        std::cout << "(" << rec.size() << ")"
-                << "[" << delay << "s]"
-                << "{" << total << "s} "
+        std::cout << "(" << rec.size() << ")\t"
+                << "[" << delay << "s]\t"
+                << "{" << total << "s} \t"
                 << s;
     }
 
