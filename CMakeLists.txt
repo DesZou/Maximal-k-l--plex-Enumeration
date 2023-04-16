@@ -22,3 +22,6 @@ ADD_EXECUTABLE(adjacent_search_opt
     src/adjacent_search_opt.cc
     src/utils.cc)
     
+ADD_EXECUTABLE(adjacent_copy
+    src/adjacent_search_copy.cc
+    src/utils_copy.cc)
