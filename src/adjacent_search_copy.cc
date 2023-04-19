@@ -9,6 +9,13 @@ Logger lgr;
 Graph grph;
 std::set<Vec<u32>> sol;
 
+bool operator<(Vec<u32> const& lhs, Vec<u32> const& rhs) {
+    if (lhs.size() != rhs.size()) return lhs.size() < rhs.size();
+    for (u32 i = 0; i < lhs.size(); ++i) {
+        if (lhs[i] != rhs[i]) return lhs[i] < rhs[i];
+    }
+}
+
 bool contains(Vec<u32> const& s, u32 v) {
     return std::binary_search(s.begin(), s.end(), v);
 }
@@ -33,18 +40,6 @@ bool sat(Vec<u32> const& s) {
         if (k + K < n || l + L < n) return false;
     }
     return true;
-}
-
-void extend_to_maximal(Vec<u32>& s) {
-    u32 n = grph.vrt_size;
-    std::sort(s.begin(), s.end());
-    u32 original_size = s.size();
-    for (u32 i = 0; i < n; ++i) {
-        if (std::binary_search(s.begin(), std::next(s.begin(), original_size), i)) continue;
-        s.push_back(i);
-        if (sat(s)) continue;
-        s.pop_back();
-    }
 }
 
 // void extend_to_maximal(Vec<u32>& s) {
@@ -87,10 +82,15 @@ void extend_to_maximal(Vec<u32>& s) {
 //     std::cout << "   extends to || " << s;
 // }
 
-bool operator<(Vec<u32> const& lhs, Vec<u32> const& rhs) {
-    if (lhs.size() != rhs.size()) return lhs.size() < rhs.size();
-    for (u32 i = 0; i < lhs.size(); ++i) {
-        if (lhs[i] != rhs[i]) return lhs[i] < rhs[i];
+void extend_to_maximal(Vec<u32>& s) {
+    u32 n = grph.vrt_size;
+    std::sort(s.begin(), s.end());
+    u32 original_size = s.size();
+    for (u32 i = 0; i < n; ++i) {
+        if (std::binary_search(s.begin(), std::next(s.begin(), original_size), i)) continue;
+        s.push_back(i);
+        if (sat(s)) continue;
+        s.pop_back();
     }
 }
 
@@ -125,9 +125,7 @@ void enum_almost(Vec<u32> const& s, u32 v, Vec<u32>& used) {
     u32 n = s.size() + 1;
     Vec<u32> incl, excl, cand;
     std::copy_if(s.begin(), s.end(), std::back_inserter(incl), [&](u32 x) {
-        u32 k = calc_out_deg(x, s) + contains(grph.to[v], x);
-        u32 l = calc_in_deg(x, s) + contains(grph.from[v], x);
-        return k + K >= n && l + L >= n;
+        return contains(grph.to[v], x) && contains(grph.from[v], x);
     });
     std::set_difference(s.begin(), s.end(), incl.begin(), incl.end(), std::back_inserter(excl));
     incl.push_back(v);
