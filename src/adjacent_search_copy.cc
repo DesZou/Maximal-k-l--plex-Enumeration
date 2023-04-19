@@ -9,89 +9,84 @@ Logger lgr;
 Graph grph;
 std::set<Vec<u32>> sol;
 
-bool operator<(Vec<u32> const& lhs, Vec<u32> const& rhs) {
-    if (lhs.size() != rhs.size()) return lhs.size() < rhs.size();
-    for (u32 i = 0; i < lhs.size(); ++i) {
-        if (lhs[i] != rhs[i]) return lhs[i] < rhs[i];
-    }
+bool operator<(Vec<u32> const &lhs, Vec<u32> const &rhs) {
+    return lhs.size() != rhs.size()?
+            (lhs.size() < rhs.size()) :
+            std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 }
 
-bool contains(Vec<u32> const& s, u32 v) {
+bool set_contains(Vec<u32> const& s, u32 v) {
     return std::binary_search(s.begin(), s.end(), v);
 }
 
-u32 calc_out_deg(u32 v, Vec<u32> const& s) {
+u32 induced_out_dgr(u32 v, Vec<u32> const& s) {
     u32 k = std::count_if(s.begin(), s.end(), [&](u32 y)
-                          { return contains(grph.from[v], y); });
+                          { return set_contains(grph.from[v], y); });
     return k;
 }
 
-u32 calc_in_deg(u32 v, Vec<u32> const& s) {
+u32 induced_in_dgr(u32 v, Vec<u32> const& s) {
     u32 l = std::count_if(s.begin(), s.end(), [&](u32 y)
-                          { return contains(grph.to[v], y); });
+                          { return set_contains(grph.to[v], y); });
     return l;
 }
 
 bool sat(Vec<u32> const& s) {
     u32 n = s.size();
-    for (auto v : s) {
-        u32 k = calc_out_deg(v, s);
-        u32 l = calc_in_deg(v, s);
-        if (k + K < n || l + L < n) return false;
-    }
-    return true;
+    return std::all_of(s.begin(), s.end(), [&](u32 x) {
+        u32 k = induced_out_dgr(x, s);
+        u32 l = induced_in_dgr(x, s);
+        return k + K >= n && l + L >= n;
+    });
 }
 
 // void extend_to_maximal(Vec<u32>& s) {
 //     u32 n = grph.vrt_size;
-//     Vec<u32> dout, din;
-//     std::sort(s.begin(), s.end());
-//     std::transform(s.begin(), s.end(), std::back_inserter(dout), [&](u32 x) { return calc_out_deg(x, s); });
-//     std::transform(s.begin(), s.end(), std::back_inserter(din), [&](u32 x) { return calc_in_deg(x, s); });
 //     u32 original_size = s.size();
-//     std::cout << "cand || " << s << dout << din;
 //     for (u32 i = 0; i < n; ++i) {
 //         if (std::binary_search(s.begin(), std::next(s.begin(), original_size), i)) continue;
-//         u32 dout_i = 0, din_i = 0;
-//         bool satisfied = true;
-//         for (u32 j = 0; j < s.size(); ++j) {
-//             u32 i2sj = contains(grph.to[i], s[j]);
-//             u32 sj2i = contains(grph.from[i], s[j]);
-//             dout_i += i2sj;
-//             din_i += sj2i;
-//             dout[j] += sj2i;
-//             din[j] += i2sj;
-//             std::cout << i2sj << " <> " << sj2i << std::endl;
-//             satisfied &= dout[j] + K >= s.size() + 1 && din[j] + L >= s.size() + 1;
-//         }
-//         std::cout << "  In vertex " << i << std::endl;
-//         satisfied &= dout_i + K >= s.size() + 1 && din_i + L >= s.size() + 1;
-//         if (satisfied) {
-//             s.push_back(i);
-//             dout.push_back(dout_i);
-//             din.push_back(din_i);
-//         } else {
-//             for (u32 j = 0; j < s.size(); ++j) {
-//                 u32 i2sj = contains(grph.to[i], s[j]);
-//                 u32 sj2i = contains(grph.from[i], s[j]);
-//                 dout[j] -= sj2i;
-//                 din[j] -= i2sj;
-//             }
-//         }
+//         s.push_back(i);
+//         if (sat(s)) continue;
+//         s.pop_back();
 //     }
-//     std::cout << "   extends to || " << s;
+//     std::inplace_merge(s.begin(), std::next(s.begin(), original_size), s.end());
 // }
 
 void extend_to_maximal(Vec<u32>& s) {
-    u32 n = grph.vrt_size;
-    std::sort(s.begin(), s.end());
+    static Vec<u32> outd, ind, tmp_outd, tmp_ind;
+    outd.clear();
+    ind.clear();
+    std::transform(s.begin(), s.end(), std::back_inserter(outd), [&](u32 x) { return induced_out_dgr(x, s); });
+    std::transform(s.begin(), s.end(), std::back_inserter(ind), [&](u32 x) { return induced_in_dgr(x, s); });
+
     u32 original_size = s.size();
-    for (u32 i = 0; i < n; ++i) {
+    for (u32 i = 0, n = grph.vrt_size; i < n; ++i) {
         if (std::binary_search(s.begin(), std::next(s.begin(), original_size), i)) continue;
-        s.push_back(i);
-        if (sat(s)) continue;
-        s.pop_back();
+        u32 outd_i = 0, ind_i = 0, ns = s.size() + 1;
+        bool satisfied = true;
+        tmp_outd.clear();
+        tmp_ind.clear();
+        for (u32 j = 0; j < s.size(); ++j) {
+            u32 from_i = set_contains(grph.from[i], s[j]);
+            u32 to_i = set_contains(grph.to[i], s[j]);
+            outd_i += from_i;
+            ind_i += to_i;
+            tmp_outd.push_back(to_i);
+            tmp_ind.push_back(from_i);
+            satisfied &= (outd[j] + to_i + K >= ns && ind[j] + from_i + L >= ns);
+        }
+        satisfied &= (outd_i + K >= ns && ind_i + L >= ns);
+        if (satisfied) {
+            s.push_back(i);
+            for (u32 j = 0; j < s.size(); ++j) {
+                outd[j] += tmp_outd[j];
+                ind[j] += tmp_ind[j];
+            }
+            outd.push_back(outd_i);
+            ind.push_back(ind_i);
+        }
     }
+    std::inplace_merge(s.begin(), std::next(s.begin(), original_size), s.end());
 }
 
 void record_and_check_enough(Vec<u32> const& cand) {
@@ -109,7 +104,6 @@ void extend_and_check(Vec<u32>& cand, Vec<u32>& used) {
     depth += 1;
 
     extend_to_maximal(cand);
-    std::sort(cand.begin(), cand.end());
     
     if (sol.find(cand) == sol.end()) {
         sol.insert(cand);
@@ -124,18 +118,19 @@ void extend_and_check(Vec<u32>& cand, Vec<u32>& used) {
 void enum_almost(Vec<u32> const& s, u32 v, Vec<u32>& used) {
     u32 n = s.size() + 1;
     Vec<u32> incl, excl, cand;
-    std::copy_if(s.begin(), s.end(), std::back_inserter(incl), [&](u32 x) {
-        return contains(grph.to[v], x) && contains(grph.from[v], x);
-    });
-    std::set_difference(s.begin(), s.end(), incl.begin(), incl.end(), std::back_inserter(excl));
-    incl.push_back(v);
+    std::partition_copy(s.begin(), s.end(), std::back_inserter(incl), std::back_inserter(excl), [&](u32 x)
+                        { return set_contains(grph.to[v], x) && set_contains(grph.from[v], x); });
+    incl.insert(std::lower_bound(incl.begin(), incl.end(), v), v);
 
     u32 m_bnd = std::min(u32(excl.size()), K + L - 2);
 
     for (u32 m = 0; m <= m_bnd; ++m) {
         Combinations comb(excl, excl.size(), m);
         while (comb.next(cand)) {
+            // if (!cand.empty() && v < cand.front()) break; // removed because it makes the performance worse
+            u32 original_size = cand.size();
             std::copy(incl.begin(), incl.end(), std::back_inserter(cand));
+            std::inplace_merge(cand.begin(), std::next(cand.begin(), original_size), cand.end());
             if (sat(cand)) extend_and_check(cand, used);
         }
     }
@@ -143,9 +138,10 @@ void enum_almost(Vec<u32> const& s, u32 v, Vec<u32>& used) {
 
 void recursion(Vec<u32> const& s, Vec<u32>& used) {
     u32 n = grph.vrt_size;
+    u32 start = s.empty()? 0 : s.front();
     u32 used_cnt = 0;
-    for (u32 i = 0; i < n; ++i) {
-        if (contains(s, i) || std::find(used.begin(), used.end(), i) != used.end()) continue;
+    for (u32 i = start; i < n; ++i) {
+        if (set_contains(s, i) || std::find(used.begin(), used.end(), i) != used.end()) continue;
         enum_almost(s, i, used);
         used.push_back(i);
         used_cnt += 1;
